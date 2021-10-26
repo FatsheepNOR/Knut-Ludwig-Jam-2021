@@ -13,6 +13,8 @@ public class GameController : MonoBehaviour
     public ThirdPersonController player;
     public Text timerText;
 
+    public AudioSource music;
+
     public GameObject winCam;
 
     // Start is called before the first frame update
@@ -28,6 +30,10 @@ public class GameController : MonoBehaviour
             timer += Time.deltaTime;
         }
         timerText.text = TimeSpan.FromSeconds(timer).ToString(@"hh\:mm\:ss");
+
+        if(Input.GetKeyDown(KeyCode.M)){
+            music.mute = !music.mute;
+        }
     }
 
     public void Win(){
