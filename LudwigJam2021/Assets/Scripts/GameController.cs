@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
     public bool paused = true;
 
     public bool victory = false;
+    public bool started = false;
     public ThirdPersonController player;
     public Text timerText;
     public Text timePBText;
@@ -40,7 +41,7 @@ public class GameController : MonoBehaviour
         timePB = PlayerPrefs.GetFloat("tpb");
 
         firstTime = PlayerPrefs.GetInt("ft")==1?true:false;
-        if(firstTime){
+        if(firstTime || !PlayerPrefs.HasKey("ft")){
             timePB = -1;
             firstTime = true;
             volumeChanger.SetMaster(1);
@@ -79,12 +80,16 @@ public class GameController : MonoBehaviour
             music.mute = !music.mute;
         }*/
 
-        if(Input.GetButtonDown("Menu")){
+        if(Input.GetButtonDown("Menu") && started){
             if(paused){
                 Unpause();
             } else {
                 Pause();
             }
+        }
+
+        if(!started){
+            Cursor.lockState = CursorLockMode.None;
         }
 
     }
@@ -161,6 +166,7 @@ public class GameController : MonoBehaviour
         volumeChanger.SetSFX(PlayerPrefs.GetFloat("sfx"));
         volumeChanger.SetMusic(PlayerPrefs.GetFloat("mus"));
         volumeChanger.SetSliders();
+        started = true;
         Unpause();
     }
 
@@ -176,6 +182,7 @@ public class GameController : MonoBehaviour
         victory = false;
         winCam.SetActive(false);
         firstTime = false;
+        started = true;
 
         SaveGame();
 
