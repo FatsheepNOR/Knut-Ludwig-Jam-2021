@@ -118,7 +118,7 @@ namespace StarterAssets
 		private int _animIDMotionSpeed;
 
 		private Animator _animator;
-		private CharacterController _controller;
+		public CharacterController _controller;
 		private StarterAssetsInputs _input;
 		private GameObject _mainCamera;
 
@@ -166,11 +166,29 @@ namespace StarterAssets
 				Move();
 			}
 
+			
+
+			
+
 			if(currentJumpCharge > 0.1) {
 				isCharging = true;
 			} else {
 				isCharging = false;
 			}
+
+			if(currentJumpCharge > 0 && !Grounded){
+				currentJumpCharge = 0;
+				isCharging = false;
+				_animator.SetBool("Charging", false);
+				asrc.Stop();
+				//Debug.Log("PLAT FELL");
+			} else if(currentJumpCharge == 0 && Grounded && Input.GetButton("Jump")){
+				currentJumpCharge = 0;
+				asrc.PlayOneShot(chargeSound);
+				_animator.SetBool("Charging", true);
+
+			}
+
 		}
 
 		private void LateUpdate()
@@ -234,7 +252,7 @@ namespace StarterAssets
 
 			RaycastHit hit;
 			int layerMask =~ LayerMask.GetMask("Player");
-			if(Physics.Raycast(transform.position,Vector3.down,out hit,5f,layerMask)){
+			if(Physics.Raycast(transform.position,Vector3.down,out hit,1f,layerMask)){
 				
 				if(hit.transform.gameObject.tag == "Platorm"){
 					//Debug.Log(hit.transform.name);
@@ -346,14 +364,16 @@ namespace StarterAssets
 
 				if(Input.GetButtonDown("Jump")){
 					currentJumpCharge = 0;
-
-					if (_hasAnimator)
-					{
-						_animator.SetBool("Charging", true);
-					}
 					asrc.PlayOneShot(chargeSound);
+					_animator.SetBool("Charging", true);
+					
 				} else if(Input.GetButton("Jump")) {
 					currentJumpCharge += jumpChargeTime*Time.deltaTime;
+					if(!Grounded){
+						currentJumpCharge = 0;
+						isCharging = false;
+						_animator.SetBool("Charging", false);
+					}
 					
 				} else if(Input.GetButtonUp("Jump")){
 
@@ -457,6 +477,13 @@ namespace StarterAssets
 			Debug.Log("RAGDOLL OFF");
 			recoverStamp = Time.time + recoverTime;
 			transform.rotation = Quaternion.Euler(0.0f, transform.rotation.y, 0.0f);
+
+			if(Input.GetButton("Jump")){
+				currentJumpCharge = 0;
+				asrc.PlayOneShot(chargeSound);
+				_animator.SetBool("Charging", true);
+					
+			}
 		}
 
 		public void DoubleJump(){
@@ -474,8 +501,8 @@ namespace StarterAssets
 
 		private void OnCollisionEnter(Collision other) {
 			if(ragdolling){
-			asrc.PlayOneShot(hitSounds[Random.Range(0,hitSounds.Length)]);
-			asrc.PlayOneShot(shoutSounds[Random.Range(0,shoutSounds.Length)]);
+				asrc.PlayOneShot(hitSounds[Random.Range(0,hitSounds.Length)]);
+				asrc.PlayOneShot(shoutSounds[Random.Range(0,shoutSounds.Length)]);
 			}
 		}
 	}
